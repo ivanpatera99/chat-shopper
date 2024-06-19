@@ -12,15 +12,6 @@ const LoadingComponent = (props: {s: string}) => (
   <div className="animate-pulse p-4">{props.s}</div>
 );
 
-const getProducts = async (prompt: string) => {
-    return "data ok"
-};
-
-interface ProductProps {
-  name: string;
-  price: number;
-}
-
 export async function streamComponent(prompt: string): Promise<any> {
   const stream = createStreamableUI(<LoadingComponent s="Looking into your request..." />);
   const { agent_response, category_ids, categories, keywords} = await promptInterpretation(prompt);
