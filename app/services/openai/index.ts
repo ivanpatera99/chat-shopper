@@ -120,7 +120,7 @@ export const promptInterpretation = async (prompt: string) => {
 }
 ]
 Analyze the provided prompt to generate a json with the following keys:
-'agent_response' should be a string with the response from the agent, 
+'agent_response' the response from the agent leading the user to see the selected products, 
 'category_ids' should be an array of strings with subcategory ids, 
 'categories' the names of selected ids and 
 'keywords' should be a string with extracted PRODUCT DATA.

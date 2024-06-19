@@ -15,8 +15,7 @@ const LoadingComponent = (props: {s: string}) => (
 export async function streamComponent(prompt: string): Promise<any> {
   const stream = createStreamableUI(<LoadingComponent s="Looking into your request..." />);
   const { agent_response, category_ids, categories, keywords} = await promptInterpretation(prompt);
-  console.log("agent_response", agent_response);  
-  stream.update(<LoadingComponent s="Getting products..." />);
+  console.log("agent_response", agent_response);
   stream.update(<h1>{agent_response}</h1>);
 
   const [resultByKeywords, resultByCategories, resultByCategoryIds] = await Promise.all([
@@ -40,16 +39,20 @@ export async function streamComponent(prompt: string): Promise<any> {
             `,
             tools: {
                 evaluation: {
-                    description: 'Check if the product is a good recomendation for the user',
+                    description: 'Check if the product is a good recomendation for the user, give a brief product description',
                     parameters: z.object({
                         isGoodRecommendation: z.boolean(),
                         productName: z.string(),
                         productPrice: z.number(),
+                        productDescription: z.string()
                     }),
-                    execute: async ({ isGoodRecommendation, productName, productPrice }) => {
+                    execute: async ({ isGoodRecommendation, productName, productPrice, productDescription }) => {
                         console.log(`is ${productName} a good recommendation: `, isGoodRecommendation)
                         if (isGoodRecommendation) {
-                            stream.append(<ProductCard name={productName} price={productPrice} description=''/>);
+                            stream.append(<div>
+                                <ProductCard name={productName} price={productPrice} description=''/>
+                                <p>{productDescription}</p>
+                            </div>);
                         }
                         return;
                     }
