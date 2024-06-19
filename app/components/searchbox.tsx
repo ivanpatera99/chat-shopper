@@ -1,9 +1,10 @@
+'use client'
 import React from 'react';
 
 interface SearchBoxProps {
     searchText: string;
     handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    handleButtonClick: () => void;
+    handleButtonClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 const SearchBox: React.FC<SearchBoxProps> = function ({
