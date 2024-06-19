@@ -1,8 +1,12 @@
 'use server';
 
-import { createStreamableUI } from 'ai/rsc';
+import { createStreamableUI, streamUI } from 'ai/rsc';
 import { promptInterpretation } from './services/openai';
 import { getResultByCategoryIds, getResultByCategories, getResultByKeywords } from './services/mongo';
+import { openai } from '@ai-sdk/openai';
+import { z } from 'zod';
+import ProductCard from './components/productCard';
+import { generateText } from 'ai';
 
 const LoadingComponent = (props: {s: string}) => (
   <div className="animate-pulse p-4">{props.s}</div>
@@ -31,24 +35,39 @@ export async function streamComponent(prompt: string): Promise<any> {
   ])
 
     const products = [...resultByKeywords, ...resultByCategories, ...resultByCategoryIds];
+
     const productIdTracker = new Set();
-    products.forEach((p) => {
-        console.log(p._id.toString())
-        console.log(productIdTracker.has(p._id.toString()))
+    const uiPromises = products.map((p) => {
         if (productIdTracker.has(p._id.toString())) return;
         productIdTracker.add(p._id.toString());
-        stream.append(
-            <div className="flex flex-row bg-white rounded-lg shadow-lg p-4">
-                <div className="w-32 h-32 bg-black"></div>
-                <div className="mt-4">
-                    <p className="text-black text-xl font-bold">{p.name}</p>
-                    <p className="text-gray-500">${p.price}</p>
-                </div>
-            </div>
-        );
+        return generateText({
+            model: openai('gpt-3.5-turbo'),
+            system: 'You are a shopping assistant.',
+            prompt: `
+            Based on the original prompt: ${prompt}, 
+            check if the product is a good recomendation for the user: ${p.name} with price: ${p.price}
+            `,
+            tools: {
+                evaluation: {
+                    description: 'Check if the product is a good recomendation for the user',
+                    parameters: z.object({
+                        isGoodRecommendation: z.boolean(),
+                        productName: z.string(),
+                        productPrice: z.number(),
+                    }),
+                    execute: async ({ isGoodRecommendation, productName, productPrice }) => {
+                        console.log(`is ${productName} a good recommendation: `, isGoodRecommendation)
+                        if (isGoodRecommendation) {
+                            stream.append(<ProductCard name={productName} price={productPrice} description=''/>);
+                        }
+                        return;
+                    }
+                }
+            }
+        })
     })
-
-    stream.done();
+    await Promise.all(uiPromises);
+    stream.done()
     return stream.value;
 
 }
