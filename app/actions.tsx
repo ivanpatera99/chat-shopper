@@ -63,5 +63,4 @@ export async function streamComponent(prompt: string): Promise<any> {
     await Promise.all(uiPromises);
     stream.done()
     return stream.value;
-
 }
