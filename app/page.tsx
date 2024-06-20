@@ -1,4 +1,5 @@
 'use client'
+export const maxDuration = 60;
 import { streamComponent } from "./actions";
 import SearchBox from "./components/searchbox";
 import React from "react";
