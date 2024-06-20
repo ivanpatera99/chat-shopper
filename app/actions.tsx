@@ -1,4 +1,5 @@
 'use server';
+export const maxDuration = 60;
 
 import { createStreamableUI, streamUI } from 'ai/rsc';
 import { promptInterpretation } from './services/openai';
