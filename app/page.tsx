@@ -19,7 +19,7 @@ export default function Home() {
   };
 
   return (
-    <main className="flex h-screen w-screen flex-col items-start justify-begining pt-5 py-2 bg-zinc-500">
+    <main className="flex h-lvh w-screen flex-col items-start justify-begining pt-5 py-2 bg-zinc-500" style={{ overflowY: 'scroll' }}>
       <SearchBox searchText={searchText} handleInputChange={handleInputChange} handleButtonClick={handleButtonClick} />
       {component}
     </main>
