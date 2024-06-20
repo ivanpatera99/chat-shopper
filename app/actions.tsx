@@ -7,6 +7,16 @@ import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import ProductCard from './components/productCard';
 import { generateText } from 'ai';
+import { MongoClient, ServerApiVersion } from 'mongodb';
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(process.env.MONGODB_URI ?? '', {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: false,
+      deprecationErrors: true,
+    },
+  });
 
 const LoadingComponent = (props: {s: string}) => (
   <div className="animate-pulse p-4">{props.s}</div>
@@ -15,13 +25,14 @@ const LoadingComponent = (props: {s: string}) => (
 export async function streamComponent(prompt: string): Promise<any> {
   const stream = createStreamableUI(<LoadingComponent s="Looking into your request..." />);
   const { agent_response, category_ids, categories, keywords} = await promptInterpretation(prompt);
+  console.log(`agent_response: ${agent_response}, category_ids: ${category_ids}, categories: ${categories}, keywords: ${keywords}`)
   console.log("agent_response", agent_response);
   stream.update(<h1>{agent_response}</h1>);
 
   const [resultByKeywords, resultByCategories, resultByCategoryIds] = await Promise.all([
-    getResultByKeywords(keywords),
-    getResultByCategories(categories),
-    getResultByCategoryIds(category_ids),
+    getResultByKeywords(keywords, client),
+    getResultByCategories(categories, client),
+    getResultByCategoryIds(category_ids, client),
   ])
 
     const products = [...resultByKeywords, ...resultByCategories, ...resultByCategoryIds];

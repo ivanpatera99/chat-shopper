@@ -1,15 +1,7 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient } from 'mongodb';
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(process.env.MONGODB_URI ?? '', {
-    serverApi: {
-      version: ServerApiVersion.v1,
-      strict: false,
-      deprecationErrors: true,
-    },
-  });
 
-export const getResultByKeywords = async (keywords: string) => {
+export const getResultByKeywords = async (keywords: string, client: MongoClient) => {
     const collection = await client.db('shopper').collection('products')
     return collection.aggregate([
         {
@@ -28,7 +20,7 @@ export const getResultByKeywords = async (keywords: string) => {
         }
       ]).limit(7).toArray(); 
 }
-export const getResultByCategories = async (categories: string[]) => {
+export const getResultByCategories = async (categories: string[], client: MongoClient) => {
     const collection = await client.db('shopper').collection('products')
     return collection.aggregate([
         {
@@ -47,7 +39,7 @@ export const getResultByCategories = async (categories: string[]) => {
         }
       ]).limit(7).toArray();
 }
-export const getResultByCategoryIds = async (categoryIds: string[]) => {
+export const getResultByCategoryIds = async (categoryIds: string[], client: MongoClient) => {
     const collection = await client.db('shopper').collection('products')
 
     return collection.find({ category: { $in: categoryIds } }).limit(4).toArray();
